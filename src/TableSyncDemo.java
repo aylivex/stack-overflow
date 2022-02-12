@@ -14,12 +14,16 @@ import javax.swing.table.TableRowSorter;
 import static javax.swing.BorderFactory.createEmptyBorder;
 import static javax.swing.Box.createHorizontalStrut;
 import static javax.swing.BoxLayout.X_AXIS;
+import static javax.swing.event.RowSorterEvent.Type.SORTED;
+import static javax.swing.event.RowSorterEvent.Type.SORT_ORDER_CHANGED;
 
 /**
  * Demo app for <a href="https://stackoverflow.com/q/70968706"
  * >How to sort rows in one table in same order as another table</a>.
  * <p>This app shows two tables, the 2nd table order of rows follows
  * the sort order of the 1st table.
+ * <p>The second version of the demo also syncs the sort order of the
+ * 2nd table to the 1st table.
  */
 public class TableSyncDemo {
     public static void main(String[] args) {
@@ -27,7 +31,10 @@ public class TableSyncDemo {
     }
 
     private TableSyncDemo() {
-        TableOneModel tableOneData = new TableOneModel(
+        final TableRowSorter<TableTwoModel> sorterOne = new TableRowSorter<>();
+        final TableRowSorter<TableTwoModel> sorterTwo = new TableRowSorter<>();
+
+        TableTwoModel tableOneData = new TableTwoModel(
                 new String[] {"Row Id", "Person", "Color"},
                 new Object[][] {
                     {1, "Tom",   "Black"},
@@ -35,22 +42,32 @@ public class TableSyncDemo {
                     {3, "Fred",  "Red"},
                     {4, "Steve", "Blue"},
                     {5, "Jim",   "Yellow"}
-                });
-        JTable tableOne = new JTable(tableOneData);
-        TableRowSorter<TableOneModel> sorterOne = new TableRowSorter<>(tableOneData);
-        tableOne.setRowSorter(sorterOne);
-
+                },
+                sorterTwo,
+                true);
         TableTwoModel tableTwoData = new TableTwoModel(
                 new String[] {"Row Id", "Fruit"},
                 new Object[][]{
-                    {1, "Orange"},
-                    {2, "Apple"},
-                    {3, "Pear"},
-                    {4, "Lemon"},
-                    {5, "Plum"}
+                        {1, "Orange"},
+                        {2, "Apple"},
+                        {3, "Pear"},
+                        {4, "Lemon"},
+                        {5, "Plum"}
                 },
-                sorterOne);
+                sorterOne,
+                false);
+
+        sorterOne.setModel(tableOneData);
+        sorterTwo.setModel(tableTwoData);
+
+        JTable tableOne = new JTable(tableOneData);
+        tableOne.setRowSorter(sorterOne);
+
         JTable tableTwo = new JTable(tableTwoData);
+        tableTwo.setRowSorter(sorterTwo);
+
+        sorterOne.addRowSorterListener(e -> resetSortKeys(e, sorterOne, sorterTwo));
+        sorterTwo.addRowSorterListener(e -> resetSortKeys(e, sorterTwo, sorterOne));
 
         JPanel main = new JPanel();
         main.setLayout(new BoxLayout(main, X_AXIS));
@@ -65,6 +82,15 @@ public class TableSyncDemo {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+    }
+
+    private void resetSortKeys(RowSorterEvent e,
+                               RowSorter<? extends TableModel> thisSorter,
+                               RowSorter<? extends TableModel> otherSorter) {
+        if (e.getType() == SORT_ORDER_CHANGED
+                && thisSorter.getSortKeys().size() > 0) {
+            otherSorter.setSortKeys(null);
+        }
     }
 
     private static class TableOneModel extends AbstractTableModel {
@@ -97,19 +123,26 @@ public class TableSyncDemo {
             implements RowSorterListener {
 
         private final RowSorter<? extends TableModel> otherSorter;
+        private final boolean leading;
 
         public TableTwoModel(String[] columnNames, Object[][] data,
-                             RowSorter<? extends TableModel> sorter) {
+                             RowSorter<? extends TableModel> otherSorter,
+                             boolean leading) {
             super(columnNames, data);
-            this.otherSorter = sorter;
+            this.otherSorter = otherSorter;
+            this.leading = leading;
             installListeners();
         }
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            return super.getValueAt(
-                    otherSorter.convertRowIndexToModel(rowIndex),
-                    columnIndex);
+            if (leading && otherSorter.getSortKeys().size() == 0) {
+                return super.getValueAt(rowIndex, columnIndex);
+            } else {
+                return super.getValueAt(
+                        otherSorter.convertRowIndexToModel(rowIndex),
+                        columnIndex);
+            }
         }
 
         private void installListeners() {
@@ -118,7 +151,9 @@ public class TableSyncDemo {
 
         @Override
         public void sorterChanged(RowSorterEvent e) {
-            fireTableDataChanged();
+            if (e.getType() == SORTED) {
+                fireTableDataChanged();
+            }
         }
     }
 }
