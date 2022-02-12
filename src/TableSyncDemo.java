@@ -43,8 +43,7 @@ public class TableSyncDemo {
                     {4, "Steve", "Blue"},
                     {5, "Jim",   "Yellow"}
                 },
-                sorterTwo,
-                true);
+                sorterTwo);
         TableTwoModel tableTwoData = new TableTwoModel(
                 new String[] {"Row Id", "Fruit"},
                 new Object[][]{
@@ -54,8 +53,7 @@ public class TableSyncDemo {
                         {4, "Lemon"},
                         {5, "Plum"}
                 },
-                sorterOne,
-                false);
+                sorterOne);
 
         sorterOne.setModel(tableOneData);
         sorterTwo.setModel(tableTwoData);
@@ -123,26 +121,19 @@ public class TableSyncDemo {
             implements RowSorterListener {
 
         private final RowSorter<? extends TableModel> otherSorter;
-        private final boolean leading;
 
         public TableTwoModel(String[] columnNames, Object[][] data,
-                             RowSorter<? extends TableModel> otherSorter,
-                             boolean leading) {
+                             RowSorter<? extends TableModel> otherSorter) {
             super(columnNames, data);
             this.otherSorter = otherSorter;
-            this.leading = leading;
             installListeners();
         }
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            if (leading && otherSorter.getSortKeys().size() == 0) {
-                return super.getValueAt(rowIndex, columnIndex);
-            } else {
-                return super.getValueAt(
-                        otherSorter.convertRowIndexToModel(rowIndex),
-                        columnIndex);
-            }
+            return super.getValueAt(
+                    otherSorter.convertRowIndexToModel(rowIndex),
+                    columnIndex);
         }
 
         private void installListeners() {
