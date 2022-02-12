@@ -15,6 +15,12 @@ import static javax.swing.BorderFactory.createEmptyBorder;
 import static javax.swing.Box.createHorizontalStrut;
 import static javax.swing.BoxLayout.X_AXIS;
 
+/**
+ * Demo app for <a href="https://stackoverflow.com/q/70968706"
+ * >How to sort rows in one table in same order as another table</a>.
+ * <p>This app shows two tables, the 2nd table order of rows follows
+ * the sort order of the 1st table.
+ */
 public class TableSyncDemo {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(TableSyncDemo::new);
