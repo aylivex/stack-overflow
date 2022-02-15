@@ -1,8 +1,16 @@
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Vector;
-import javax.swing.*;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 public class FrameIconList {
@@ -53,8 +61,8 @@ public class FrameIconList {
                 gui.setBorder(new EmptyBorder(2, 3, 2, 3));
                 gui.setBackground(Color.WHITE);
 
-                ArrayList<BufferedImage> images = new ArrayList<BufferedImage>();
-                Vector<ImageIcon> icons = new Vector<ImageIcon>();
+                ArrayList<BufferedImage> images = new ArrayList<>();
+                Vector<ImageIcon> icons = new Vector<>();
                 for (int ii=0; ii< sizes.length; ii++) {
                     BufferedImage bi = getImage(
                             sizes[ii],
@@ -63,7 +71,7 @@ public class FrameIconList {
                     ImageIcon imi = new ImageIcon(bi);
                     icons.add(imi);
                 }
-                JList list = new JList(icons);
+                JList<ImageIcon> list = new JList<>(icons);
                 list.setVisibleRowCount(6);
                 gui.add(new JScrollPane(list));
 
