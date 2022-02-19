@@ -24,8 +24,10 @@ public class FrameIconList {
         g.setColor(color);
         g.fillRect(0, 0, size, size);
         g.setColor(Color.BLACK);
-        int off = (size>17 ? 3 : 1);
-        if (off>1) g.drawRect(0, 0, size-1, size-1);
+        int off = (size > 17 ? 3 : 1);
+        if (off > 1) {
+            g.drawRect(0, 0, size - 1, size - 1);
+        }
         g.drawString("" + size, off, size-off);
 
         g.dispose();
@@ -48,8 +50,8 @@ public class FrameIconList {
         int s = 64;
         final int[] sizes = new int[s];
 
-        for (int ii=0; ii<sizes.length; ii++) {
-            sizes[ii] = 16+(ii*2);
+        for (int ii = 0; ii < sizes.length; ii++) {
+            sizes[ii] = 16 + (ii * 2);
         }
 
         Runnable r = new Runnable() {
@@ -63,10 +65,10 @@ public class FrameIconList {
 
                 ArrayList<BufferedImage> images = new ArrayList<>();
                 Vector<ImageIcon> icons = new Vector<>();
-                for (int ii=0; ii< sizes.length; ii++) {
+                for (int ii = 0; ii < sizes.length; ii++) {
                     BufferedImage bi = getImage(
                             sizes[ii],
-                            colors[ii%colors.length]);
+                            colors[ii % colors.length]);
                     images.add(bi);
                     ImageIcon imi = new ImageIcon(bi);
                     icons.add(imi);
